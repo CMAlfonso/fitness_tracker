@@ -2,35 +2,12 @@ const {Client} = require("pg");
 
 const client = new Client("postgres://localhost:5432/fitness:dev");
 
-async function createUser({
-    username,
-    password
-}) {
-    try {
-        const {rows: [user]} = await client.query(`
-        INSERT INTO users(username, password) 
-        VALUES($1, $2) 
-        ON CONFLICT (username) DO NOTHING 
-        RETURNING *;
-        `, [username, password]);
-        
-        return user;
-    } catch(error) {
-        throw error;
-    }
-}
-
-async function getAllUsers() {
-    const { rows } = await client.query(
-      `SELECT id, username 
-      FROM users;
-    `);
-  
-    return rows;
-  }
+// console.log(client)
 
 module.exports = {
     client,
-    createUser,
-    getAllUsers
+    ...require('./users.js')(client),
+    ...require('./activities.js')(client),
+    ...require('./routines')(client),
+    // ...require('./routine_activities')
 }
